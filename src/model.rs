@@ -150,6 +150,7 @@ impl Model {
     pub(super) fn model_type(&self) -> ModelType {
         self.model_type.clone()
     }
+    #[allow(clippy::wrong_self_convention)]
     pub(super) fn to_model_db_entry(
         &mut self,
         timestamp: f64,
@@ -174,9 +175,9 @@ impl Model {
             tags: vec![],
             did: deck_id,
             usn: -1,
-            req: self.req()?.clone(),
+            req: self.req()?,
             flds: self.fields.clone(),
-            sortf: self.sort_field_index.clone(),
+            sortf: self.sort_field_index,
             tmpls: self.templates.clone(),
             model_db_entry_mod: timestamp as i64,
             latex_post: self.latex_post.clone(),
@@ -187,12 +188,9 @@ impl Model {
         })
     }
 
-    #[allow(dead_code)]
+    #[allow(dead_code, clippy::wrong_self_convention)]
     pub(super) fn to_json(&mut self, timestamp: f64, deck_id: usize) -> Result<String, Error> {
-        Ok(
-            serde_json::to_string(&self.to_model_db_entry(timestamp, deck_id)?)
-                .map_err(json_error)?,
-        )
+        serde_json::to_string(&self.to_model_db_entry(timestamp, deck_id)?).map_err(json_error)
     }
 }
 
@@ -460,7 +458,7 @@ mod tests {
             "NOTE FOUR: {{c1::1st deletion}} foo {{c2::2nd deletion}} bar {{c1::3rd deletion}}",
             "",
         ];
-        let cloze_note = Note::new(model.clone(), fields).unwrap();
+        let cloze_note = Note::new(model, fields).unwrap();
         let mut sorted = cloze_note
             .cards()
             .iter()

@@ -562,7 +562,7 @@ def check_media(col):
 
     #[test]
     #[serial]
-    fn media_files() {
+    fn media_files() -> anyhow::Result<()> {
         let tmp_dir = TempDir::new().unwrap();
         std::env::set_current_dir(tmp_dir.path()).unwrap();
 
@@ -576,14 +576,8 @@ def check_media(col):
         )
         .unwrap();
         deck.add_note(note);
-        std::fs::File::create("present.mp3")
-            .unwrap()
-            .write(VALID_MP3)
-            .unwrap();
-        std::fs::File::create("present.jpg")
-            .unwrap()
-            .write(VALID_JPG)
-            .unwrap();
+        std::fs::File::create("present.mp3")?.write_all(VALID_MP3)?;
+        std::fs::File::create("present.jpg")?.write_all(VALID_JPG)?;
         Python::with_gil(|py| {
             let mut setup = TestSetup::new(&py);
             setup.import_package(
@@ -599,11 +593,13 @@ def check_media(col):
             assert!(missing.contains(&"missing.jpg".to_string()));
             assert!(missing.contains(&"missing.mp3".to_string()));
         });
+
+        Ok(())
     }
 
     #[test]
     #[serial]
-    fn media_files_absolute_paths() {
+    fn media_files_absolute_paths() -> anyhow::Result<()> {
         let tmp_dir = TempDir::new().unwrap();
         std::env::set_current_dir(tmp_dir.path()).unwrap();
 
@@ -619,14 +615,8 @@ def check_media(col):
         deck.add_note(note);
         let present_mp3_path = tmp_dir.path().join("present.mp3");
         let present_jpg_path = tmp_dir.path().join("present.jpg");
-        std::fs::File::create(present_mp3_path.clone())
-            .unwrap()
-            .write(VALID_MP3)
-            .unwrap();
-        std::fs::File::create(present_jpg_path.clone())
-            .unwrap()
-            .write(VALID_JPG)
-            .unwrap();
+        std::fs::File::create(present_mp3_path.clone())?.write_all(VALID_MP3)?;
+        std::fs::File::create(present_jpg_path.clone())?.write_all(VALID_JPG)?;
         Python::with_gil(|py| {
             let mut setup = TestSetup::new(&py);
             setup.import_package(
@@ -645,6 +635,8 @@ def check_media(col):
             assert!(missing.contains(&"missing.jpg".to_string()));
             assert!(missing.contains(&"missing.mp3".to_string()));
         });
+
+        Ok(())
     }
 
     #[test]
